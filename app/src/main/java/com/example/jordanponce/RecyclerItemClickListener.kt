@@ -2,8 +2,10 @@ package com.example.jordanponce
 
 import android.content.Context
 import android.util.Log
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import androidx.core.view.GestureDetectorCompat
 import androidx.recyclerview.widget.RecyclerView
 
 class RecyclerItemClickListener(
@@ -18,8 +20,35 @@ class RecyclerItemClickListener(
         fun onItemLongClick(view: View, position: Int)
     }
 
+    private val gestureDetector = GestureDetectorCompat(context, object: GestureDetector.SimpleOnGestureListener(){
+        override fun onSingleTapUp(e: MotionEvent): Boolean {
+            Log.d(TAG, ".onSingleTapUp: starts")
+
+            val childView = recyclerView.findChildViewUnder(e.x, e.y)
+
+            Log.d(TAG, ".onSingleTapUp: calling listener .onItemClicked")
+            childView?.let{
+                listener.onItemClick(it, recyclerView.getChildAdapterPosition(it))
+            }
+            return true
+        }
+
+        override fun onLongPress(e: MotionEvent) {
+            Log.d(TAG, ".onLongPress: starts")
+
+            val childView = recyclerView.findChildViewUnder(e.x, e.y)
+            Log.d(TAG, ".onLongPress: calling listener .onItemClicked")
+            childView?.let{
+                listener.onItemLongClick(it, recyclerView.getChildAdapterPosition(it))
+            }
+        }
+    })
+
     override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
         Log.d(TAG, ".onInterceptTouchEvent starts $e")
-        return super.onInterceptTouchEvent(rv, e)
+        val result = gestureDetector.onTouchEvent(e)
+        Log.d(TAG, ".onInterceptTouchEvent() returning: $result")
+//        return super.onInterceptTouchEvent(rv, e)
+        return result
     }
 }

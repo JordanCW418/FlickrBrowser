@@ -1,21 +1,20 @@
 package com.example.jordanponce
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
 private const val TAG = "MainActivity"
 
-class MainActivity : AppCompatActivity(),
+class MainActivity : BaseActivity(),
     GetRawData.OnDownloadComplete,
     GetFlickrJsonData.OnDataAvailable,
     RecyclerItemClickListener.OnRecyclerClickListener{
@@ -28,7 +27,7 @@ class MainActivity : AppCompatActivity(),
         Log.d(TAG, "onCreate called")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
+        activateToolbar(false)
 
         recycler_view.layoutManager = LinearLayoutManager(this)
         recycler_view.addOnItemTouchListener(RecyclerItemClickListener(this, recycler_view, this))
@@ -49,7 +48,16 @@ class MainActivity : AppCompatActivity(),
 
     override fun onItemLongClick(view: View, position: Int) {
         Log.d(TAG, ".onItemLongClick: starts")
-        Toast.makeText(this, "Long tap at position $position", Toast.LENGTH_SHORT).show()
+
+        val photo = flickrRecylcerAdapter.getPhoto(position)
+
+        photo?.let{
+            val intent = Intent(this, PhotoDetailsActivity::class.java)
+            intent.putExtra(PHOTO_TRANSFER, photo)
+            startActivity(intent)
+        }
+
+        Log.d(TAG, ".onItemLongClick: ends")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
